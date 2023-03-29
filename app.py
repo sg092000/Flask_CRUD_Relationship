@@ -188,6 +188,25 @@ class DoctorResource(Resource):
             }
             print("Error : " , e)
             return df
+        
+    def delete(self, DoctorId):
+        try:
+            doctor = Doctor.query.get(DoctorId)
+            if doctor is None:
+                    return "Sorry! Doctor with provided ID doesn't exist. Please check the DoctorId again."
+            db.session.delete(doctor)
+            db.session.commit()
+            return {"Message" : "Successfully Deleted your record."},200
+        except Exception as e:
+            df = {
+                "Error Status" : "404: Bad Request",
+                "Error Message" : e.args[0]
+            }
+            print("Error : " , e)
+            return df
+
+
+
     
 
 api.add_resource(PatientList, "/GetAllPatients/")
