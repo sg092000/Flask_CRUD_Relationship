@@ -54,7 +54,7 @@ Patients_Schema = PatientSchema(many=True)
 
 class DoctorSchema(ma.Schema):
     class Meta:
-        fields = ("DoctorId", "DoctorFirstName", "DoctorLastName", "SpecializationIn", "Shift", "PhoneNumber", "Address", "DoctorEmail", "patients")
+        fields = ("DoctorId", "DoctorFirstName", "DoctorLastName", "SpecializationIn", "Shift", "PhoneNumber", "Address", "DoctorEmail")
 
 Doctor_Schema = DoctorSchema()
 Doctors_Schema = DoctorSchema(many=True)
@@ -79,7 +79,6 @@ class PatientList(Resource):
     def post(self):
         try:
             NewPatient = Patient (
-                PatientId = request.json["PatientId"],
                 PatientFirstName = request.json["PatientFirstName"],
                 PatientLastName = request.json["PatientLastName"],
                 SufferingFrom = request.json["SufferingFrom"],
@@ -250,6 +249,35 @@ class PatientResource(Resource):
             }
             print("Error : " , e)
             return df
+    
+    def put(self,PatientId):
+        try:
+            patient = Patient.query.get(PatientId)
+            if patient is None:
+                return "Sorry! Patient with provided ID doesn't exist. Please check the PatientId again."
+            patient.PatientId = request.json["PatientId"]
+            patient.PatientFirstName = request.json["PatientFirstName"]
+            patient.PatientLastName = request.json["PatientLastName"]
+            patient.SufferingFrom = request.json["SufferingFrom"]
+            patient.DoctorAssigned = request.json["DoctorAssigned"]
+            patient.PhoneNumber = request.json["PhoneNumber"]
+            patient.AdmitDate = request.json["AdmitDate"]
+            patient.Address = request.json["Address"]
+            patient.WardNo = request.json["WardNo"]
+            patient.BedNo = request.json["BedNo"]
+            patient.Doctor_id = request.json["Doctor_id"]
+            db.session.commit()
+            Patient_Schema.dump(patient)
+            return {"Message" : "Successfully updated patient!!"},200
+        except Exception as e:
+            df = {
+                "Error Status" : "404: Bad Request",
+                "Error Message" : e.args[0]
+            }
+            print("Error : " , e)
+            return df
+    
+        
 
     
 
