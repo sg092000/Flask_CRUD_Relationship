@@ -129,6 +129,40 @@ class DoctorResource(Resource):
             }
             print("Error : " , e)
             return df
+        
+    def patch(self, DoctorId):
+        try:
+            doctor = Doctor.query.get(DoctorId)
+            if doctor is None:
+                    return "Sorry! doctor with provided ID doesn't exist. Please check the doctorId again."
+            if "DoctorId" in request.json:
+                doctor.DoctorId = request.json["DoctorId"]
+            if "DoctorFirstName" in request.json:
+                doctor.DoctorFirstName = request.json["DoctorFirstName"]
+            if "DoctorLastName" in request.json:
+                doctor.DoctorLastName = request.json["DoctorLastName"]
+            if "SpecializationIn" in request.json:
+                doctor.SpecializationIn = request.json["SpecializationIn"]
+            if "Shift" in request.json:
+                doctor.Shift = request.json["Shift"]
+            if "PhoneNumber" in request.json:
+                doctor.PhoneNumber = request.json["PhoneNumber"]
+            if "Address" in request.json:
+                doctor.Address = request.json["Address"]
+            if "DoctorEmail" in request.json:
+                doctor.DoctorEmail = request.json["DoctorEmail"]
+                
+            db.session.commit()
+            Doctor_Schema.dump(doctor)
+            return {"Message" : "Successfully updated doctor!!"},200
+        except Exception as e:
+            df = {
+                "Error Status" : "404: Bad Request",
+                "Error Message" : e.args[0]
+            }
+            print("Error : " , e)
+            return df
+    
 
 api.add_resource(PatientList, "/GetAllPatients/")
 api.add_resource(DoctorList, "/GetAllDoctors/")
