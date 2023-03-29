@@ -75,8 +75,23 @@ class PatientList(Resource):
             print("Error : " , e)
             return df
         
+class DoctorList(Resource):
+    def get(self):
+        try:
+            doctors = Doctor.query.all()
+            result = Doctors_Schema.dump(doctors)
+            return jsonify(result)
+        except Exception as e:
+            df = {
+                "Error Status" : "404: Bad Request",
+                "Error Message" : e.args[0]
+            }
+            print("Error : " , e)
+            return df
+        
 
 api.add_resource(PatientList, "/GetAllPatients/")
+api.add_resource(DoctorList, "/GetAllDoctors/")
     
 
 
