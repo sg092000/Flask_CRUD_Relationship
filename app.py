@@ -74,6 +74,8 @@ class PatientList(Resource):
             }
             print("Error : " , e)
             return df
+    
+    
         
 class DoctorList(Resource):
     def get(self):
@@ -207,12 +209,28 @@ class DoctorResource(Resource):
 
 
 
+class PatientResource(Resource):
+    def get(self, PatientId):
+        try:
+            patient = Patient.query.get(PatientId)
+            if patient is None:
+                return "Sorry! Patient with provided ID doesn't exist. Please check the PatientId again."
+            Result = Patient_Schema.dump(patient)
+            return jsonify(Result)
+        except Exception as e:
+            df = {
+                "Error Status" : "404: Bad Request",
+                "Error Message" : e.args[0]
+            }
+            print("Error : " , e)
+            return df
+
     
 
 api.add_resource(PatientList, "/GetAllPatients/")
 api.add_resource(DoctorList, "/GetAllDoctors/")
 api.add_resource(DoctorResource, "/Doctors/<int:DoctorId>/")
-    
+api.add_resource(PatientResource, "/Patients/<int:PatientId>/")
 
 
 if __name__ == "__main__":
