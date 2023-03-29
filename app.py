@@ -103,8 +103,25 @@ class DoctorList(Resource):
             )
             db.session.add(NewDoctor)
             db.session.commit()
-            Patient_Schema.dump(NewDoctor)
+            Doctor_Schema.dump(NewDoctor)
             return {"Message" : "Successfully added the Doctor!!"},200
+        except Exception as e:
+            df = {
+                "Error Status" : "404: Bad Request",
+                "Error Message" : e.args[0]
+            }
+            print("Error : " , e)
+            return df
+
+
+class DoctorResource(Resource):
+    def get(self, DoctorId):
+        try:
+            doctor = Doctor.query.get(DoctorId)
+            if doctor is None:
+                return "Sorry! Doctor with provided ID doesn't exist. Please check the DoctorId again."
+            Result = Doctor_Schema.dump(doctor)
+            return jsonify(Result)
         except Exception as e:
             df = {
                 "Error Status" : "404: Bad Request",
@@ -115,6 +132,7 @@ class DoctorList(Resource):
 
 api.add_resource(PatientList, "/GetAllPatients/")
 api.add_resource(DoctorList, "/GetAllDoctors/")
+api.add_resource(DoctorResource, "/Doctors/<int:DoctorId>/")
     
 
 
