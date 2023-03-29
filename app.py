@@ -1,7 +1,7 @@
-from flask import Flask 
+from flask import Flask , jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-from flask_restful import Api
+from flask_restful import Api , Resource
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql+psycopg2://postgres:admin1234@localhost:5432/FLASK_RELATIONSHIP'
@@ -58,6 +58,26 @@ class DoctorSchema(ma.Schema):
 
 Doctor_Schema = DoctorSchema()
 Doctors_Schema = DoctorSchema(many=True)
+
+
+#creating CRUD
+class PatientList(Resource):
+    def get(self):
+        try:
+            patients = Patient.query.all()
+            result = Patients_Schema.dump(patients)
+            return jsonify(result)
+        except Exception as e:
+            df = {
+                "Error Status" : "404: Bad Request",
+                "Error Message" : e.args[0]
+            }
+            print("Error : " , e)
+            return df
+        
+
+api.add_resource(PatientList, "/GetAllPatients/")
+    
 
 
 if __name__ == "__main__":
