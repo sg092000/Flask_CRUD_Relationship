@@ -1,4 +1,4 @@
-from flask import Flask , jsonify
+from flask import Flask , jsonify , request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_restful import Api , Resource
@@ -89,6 +89,29 @@ class DoctorList(Resource):
             print("Error : " , e)
             return df
         
+    def post(self):
+        try:
+            NewDoctor = Doctor (
+                DoctorId = request.json["DoctorId"],
+                DoctorFirstName = request.json["DoctorFirstName"],
+                DoctorLastName = request.json["DoctorLastName"],
+                SpecializationIn = request.json["SpecializationIn"],
+                Shift = request.json["Shift"],
+                PhoneNumber = request.json["PhoneNumber"],
+                Address = request.json["Address"],
+                DoctorEmail = request.json["DoctorEmail"]
+            )
+            db.session.add(NewDoctor)
+            db.session.commit()
+            Patient_Schema.dump(NewDoctor)
+            return {"Message" : "Successfully added the Doctor!!"},200
+        except Exception as e:
+            df = {
+                "Error Status" : "404: Bad Request",
+                "Error Message" : e.args[0]
+            }
+            print("Error : " , e)
+            return df
 
 api.add_resource(PatientList, "/GetAllPatients/")
 api.add_resource(DoctorList, "/GetAllDoctors/")
