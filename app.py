@@ -277,7 +277,44 @@ class PatientResource(Resource):
             print("Error : " , e)
             return df
     
-        
+    def patch(self, PatientId):
+        try:
+            patient = Patient.query.get(PatientId)
+            if patient is None:
+                    return "Sorry! Patient with provided ID doesn't exist. Please check the PatientId again."
+            if "PatientId" in request.json:
+                patient.PatientId = request.json["PatientId"]
+            if "PatientFirstName" in request.json:
+                patient.PatientFirstName = request.json["PatientFirstName"]
+            if "PatientLastName" in request.json:
+                patient.PatientLastName = request.json["PatientLastName"]
+            if "SufferingFrom" in request.json:
+                patient.SufferingFrom = request.json["SufferingFrom"]
+            if "DoctorAssigned" in request.json:
+                patient.DoctorAssigned = request.json["DoctorAssigned"]
+            if "PhoneNumber" in request.json:
+                patient.PhoneNumber = request.json["PhoneNumber"]
+            if "AdmitDate" in request.json:
+                patient.AdmitDate = request.json["AdmitDate"]
+            if "Address" in request.json:
+                patient.Address = request.json["Address"]
+            if "WardNo" in request.json:
+                patient.WardNo = request.json["WardNo"]
+            if "BedNo" in request.json:
+                patient.BedNo = request.json["BedNo"]
+            if "Doctor_id" in request.json:
+                patient.Doctor_id = request.json["Doctor_id"]
+                
+            db.session.commit()
+            return {"Message" : "Successfully updated!!"},200
+        except Exception as e:
+            df = {
+                "Error Status" : "404: Bad Request",
+                "Error Message" : e.args[0]
+            }
+            print("Error : " , e)
+            return df
+    
 
     
 
