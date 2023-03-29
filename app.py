@@ -76,11 +76,38 @@ class PatientList(Resource):
             return df
     
     
+    def post(self):
+        try:
+            NewPatient = Patient (
+                PatientId = request.json["PatientId"],
+                PatientFirstName = request.json["PatientFirstName"],
+                PatientLastName = request.json["PatientLastName"],
+                SufferingFrom = request.json["SufferingFrom"],
+                DoctorAssigned = request.json["DoctorAssigned"],
+                PhoneNumber = request.json["PhoneNumber"],
+                AdmitDate = request.json["AdmitDate"],
+                Address = request.json["Address"],
+                WardNo = request.json["WardNo"],
+                BedNo = request.json["BedNo"],
+                Doctor_id = request.json["Doctor_id"]
+            )
+            db.session.add(NewPatient)
+            db.session.commit()
+            Patient_Schema.dump(NewPatient)
+            return {"Message" : "Successfully added!!"},200
+        except Exception as e:
+            df = {
+                "Error Status" : "404: Bad Request",
+                "Error Message" : e.args[0]
+            }
+            print("Error : " , e)
+            return df
         
 class DoctorList(Resource):
     def get(self):
         try:
             doctors = Doctor.query.all()
+            print(doctors)
             result = Doctors_Schema.dump(doctors)
             return jsonify(result)
         except Exception as e:
@@ -122,8 +149,7 @@ class DoctorResource(Resource):
             doctor = Doctor.query.get(DoctorId)
             if doctor is None:
                 return "Sorry! Doctor with provided ID doesn't exist. Please check the DoctorId again."
-            Result = Doctor_Schema.dump(doctor)
-            return jsonify(Result)
+            return Doctor_Schema.dump(doctor)
         except Exception as e:
             df = {
                 "Error Status" : "404: Bad Request",
