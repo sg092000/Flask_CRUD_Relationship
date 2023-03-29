@@ -314,6 +314,23 @@ class PatientResource(Resource):
             }
             print("Error : " , e)
             return df
+        
+    def delete(self, PatientId):
+        try:
+            patient = Patient.query.get(PatientId)
+            if patient is None:
+                    return "Sorry! Patient with provided ID doesn't exist. Please check the PatientId again."
+            db.session.delete(patient)
+            db.session.commit()
+            return {"Message" : "Successfully Deleted your record."},200
+        except Exception as e:
+            df = {
+                "Error Status" : "404: Bad Request",
+                "Error Message" : e.args[0]
+            }
+            print("Error : " , e)
+            return df
+    
     
 
     
