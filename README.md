@@ -1,0 +1,1 @@
+In this app , relationship is shown between doctor and patient
