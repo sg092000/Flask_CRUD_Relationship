@@ -2,6 +2,7 @@ from flask import Flask , jsonify , request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_restful import Api , Resource
+from marshmallow import Schema, fields
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql+psycopg2://postgres:admin1234@localhost:5432/FLASK_RELATIONSHIP'
@@ -19,7 +20,7 @@ class Doctor(db.Model):
     PhoneNumber = db.Column(db.String(10), nullable=False)
     Address = db.Column(db.String(100), nullable=False)
     DoctorEmail = db.Column(db.String(120), unique=True, nullable=False)
-    patients = db.relationship('Patient' , backref = 'doctor')
+    
     
     def __repr__(self):
         return f"Doctor(DoctorId={self.DoctorId}, DoctorFirstName='{self.DoctorFirstName}', DoctorLastName='{self.DoctorLastName}')"
@@ -36,6 +37,7 @@ class Patient(db.Model):
     WardNo = db.Column(db.Integer)
     BedNo = db.Column(db.Integer)
     Doctor_id = db.Column(db.Integer,db.ForeignKey('doctor.DoctorId'))
+    doctors = db.relationship('Doctor')
     
     
     def __repr__(self):
@@ -45,19 +47,34 @@ class Patient(db.Model):
 with app.app_context():
     db.create_all()
 
-class PatientSchema(ma.Schema):
-    class Meta:
-        fields = ("PatientId", "PatientFirstName", "PatientLastName", "SufferingFrom", "DoctorAssigned", "PhoneNumber", "Address", "WardNo", "BedNo" , "Doctor_id")
-
-Patient_Schema = PatientSchema()
-Patients_Schema = PatientSchema(many=True)
-
-class DoctorSchema(ma.Schema):
-    class Meta:
-        fields = ("DoctorId", "DoctorFirstName", "DoctorLastName", "SpecializationIn", "Shift", "PhoneNumber", "Address", "DoctorEmail")
+class DoctorSchema(Schema):
+    DoctorId = fields.Int()
+    DoctorFirstName = fields.Str()
+    DoctorLastName = fields.Str()
+    SpecializationIn = fields.Str()
+    Shift = fields.Str()
+    PhoneNumber = fields.Str()
+    Address = fields.Str()
+    DoctorEmail = fields.Str()
 
 Doctor_Schema = DoctorSchema()
 Doctors_Schema = DoctorSchema(many=True)
+
+class PatientSchema(Schema):
+    PatientId = fields.Int()
+    PatientFirstName = fields.Str()
+    PatientLastName = fields.Str()
+    SufferingFrom = fields.Str()
+    DoctorAssigned = fields.Str()
+    PhoneNumber = fields.Str()
+    AdmitDate = fields.Date()
+    Address = fields.Str()
+    WardNo = fields.Int()
+    BedNo = fields.Int()
+    doctors = fields.Nested(DoctorSchema)
+    
+Patient_Schema = PatientSchema()
+Patients_Schema = PatientSchema(many=True)
 
 
 #creating CRUD
@@ -79,6 +96,7 @@ class PatientList(Resource):
     def post(self):
         try:
             NewPatient = Patient (
+                PatientId = request.json["PatientId"],
                 PatientFirstName = request.json["PatientFirstName"],
                 PatientLastName = request.json["PatientLastName"],
                 SufferingFrom = request.json["SufferingFrom"],
@@ -148,7 +166,8 @@ class DoctorResource(Resource):
             doctor = Doctor.query.get(DoctorId)
             if doctor is None:
                 return "Sorry! Doctor with provided ID doesn't exist. Please check the DoctorId again."
-            return Doctor_Schema.dump(doctor)
+            Result1 = Doctor_Schema.dump(doctor)
+            return jsonify(Result1)
         except Exception as e:
             df = {
                 "Error Status" : "404: Bad Request",
@@ -240,8 +259,8 @@ class PatientResource(Resource):
             patient = Patient.query.get(PatientId)
             if patient is None:
                 return "Sorry! Patient with provided ID doesn't exist. Please check the PatientId again."
-            Result = Patient_Schema.dump(patient)
-            return jsonify(Result)
+            Result1 = Patient_Schema.dump(patient)
+            return jsonify(Result1)
         except Exception as e:
             df = {
                 "Error Status" : "404: Bad Request",
